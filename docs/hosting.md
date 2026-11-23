@@ -30,7 +30,7 @@ Platform as a Service: Man verbindet das GitHub-Repository, und Render baut und 
 Vercel ist der Hersteller von Next.js und hostet es serverless. Neon bietet serverless PostgreSQL, auch in der EU.
 
 - **Vorteile:** Für Next.js am einfachsten. Beide haben großzügige Free-Pläne.
-- **Nachteile:** Der Hobby-Plan von Vercel ist nur für nicht-kommerzielle Nutzung erlaubt. Serverless-Funktionen brauchen einen Connection-Pooler für PostgreSQL, und unsere Buchung mit `SELECT … FOR UPDATE` in einer langen Transaktion passt schlecht zu kurzlebigen Funktionen. Zwei US-Firmen.
+- **Nachteile:** Der Hobby-Plan von Vercel ist nur für nicht-kommerzielle Nutzung erlaubt. Für das Semester ist das egal, aber nicht für einen echten Dienstleister. Unsere Buchung mit `SELECT … FOR UPDATE` funktioniert auch hier, weil die Transaktion kurz ist und in einer Anfrage bleibt. Sie braucht aber eine direkte (nicht gepoolte) Datenbankverbindung, also zusätzliche Konfiguration. Zwei US-Firmen, und kalte Starts der Funktionen machen den ersten Aufruf langsamer.
 
 ## Kostenvergleich
 
@@ -60,15 +60,21 @@ Wir brauchen nur ein paar Mails pro Woche (neue Kunden, Paketanfragen, später W
 
 Wir nehmen **Option 1: Hetzner Cloud mit Docker Compose** und Brevo für E-Mails. Die Begründung steht in [ADR-003](adr/003-hosting-hetzner-docker-compose.md). Kurz:
 
-- Am günstigsten auf Dauer und ohne Einschränkungen wie „nicht kommerziell" oder „schläft ein".
-- Firma und Rechenzentrum in Deutschland.
-- `FOR UPDATE`-Transaktionen (ADR-002) laufen auf einem normalen Node-Prozess mit einer direkten Datenbankverbindung ohne Probleme.
-- Die Arbeit für den Server (Updates, Firewall, Backups) ist überschaubar und einmalig dokumentiert.
+- Ein echter Dienstleister kann das Portal ohne Umbau weiter nutzen. Es gibt keine Einschränkung wie „nicht kommerziell" (Vercel Hobby) und kein Einschlafen (Render Free).
+- Alle Auftragsverarbeiter sind EU-Firmen (Hetzner, Brevo).
+- Ein dauerhaft laufender Prozess: keine kalten Starts (NFA-03), und die Transaktionen aus ADR-002 laufen ohne Sonderkonfiguration.
+- Am günstigsten auf Dauer.
+- Die Arbeit für den Server (Updates, Firewall, Backups) ist überschaubar und unten beschrieben.
 
 ## Betrieb (Überblick)
 
 - **Server:** Ubuntu LTS, automatische Sicherheitsupdates (`unattended-upgrades`), SSH nur mit Schlüssel, Hetzner-Firewall lässt nur 22, 80 und 443 durch. Port 5432 (PostgreSQL) ist von außen nicht erreichbar.
-- **Deploy:** GitHub Actions baut bei jedem Merge auf `main` ein Docker-Image und schiebt es in die GitHub Container Registry. Danach wird auf dem Server `docker compose pull && docker compose up -d` ausgeführt. Datenbank-Migrationen laufen beim Start der App.
-- **Geheimnisse:** Datenbank-Passwort und Brevo-API-Key liegen in einer `.env`-Datei nur auf dem Server, nie im Repository.
-- **Backups:** Jede Nacht `pg_dump` auf die Storage Box, 14 Tage aufbewahrt. Einmal im Semester testen wir, ob man aus einem Backup wiederherstellen kann.
+- **Deploy:** GitHub Actions baut bei jedem Merge auf `main` ein Docker-Image und schiebt es in die GitHub Container Registry. Dann verbindet sich die Action per SSH mit dem Server. Dafür gibt es einen eigenen Deploy-Benutzer, dessen Schlüssel nur als GitHub-Secret gespeichert ist. Auf dem Server laufen dann:
+  1. `docker compose pull`
+  2. `docker compose run --rm migrate`: Migrationen als eigener Schritt. Schlägt eine fehl, bricht das Deployment ab, und die alte Version läuft weiter.
+  3. `docker compose up -d`
+- **Geheimnisse:** Datenbank-Passwort, Better-Auth-Secret und Brevo-API-Key liegen in einer `.env`-Datei nur auf dem Server, nie im Repository.
+- **Backups:** Jede Nacht `pg_dump` auf die Storage Box, 14 Tage aufbewahrt. Die Wiederherstellung üben wir einmal **vor der MVP-Demo**, damit wir wissen, dass sie funktioniert, bevor es darauf ankommt.
+- **Überwachung:** Ein kostenloser Uptime-Dienst ruft alle 5 Minuten `/api/health` auf und schickt eine E-Mail, wenn die Seite nicht antwortet. Die Docker-Logs werden auf 14 Tage begrenzt (`max-size`, `max-file`), damit die Festplatte nicht voll läuft. Fehlgeschlagene E-Mails stehen dort mit Empfänger und Grund.
+- **E-Mail-Zustellung:** SPF und DKIM für die Absender-Domain bei Brevo einrichten. Sonst landen Einladungen und Reset-Links im Spam.
 - **Branches:** Gearbeitet wird auf `dev`. Was auf `main` gemergt wird, geht live.

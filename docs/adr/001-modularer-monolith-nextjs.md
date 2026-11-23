@@ -29,4 +29,5 @@ Wir bauen **Variante A**: eine Next.js-Anwendung (TypeScript, App Router) mit de
 - **Positiv:** Schneller Start und einfacher Betrieb. Die Geschäftslogik liegt an genau einer Stelle (Services), egal ob ein Formular oder die API sie aufruft.
 - **Negativ:** Wir sind an Next.js gebunden. Größere Änderungen im Framework (z. B. beim Caching) können uns treffen.
 - **Negativ:** Ohne Disziplin rutscht Logik in Seiten und Routen. Die Regel „nur Services sprechen mit der Datenbank" prüfen wir im Code-Review.
+- **Festgelegt nach dem Review:** Seiten lesen, Änderungen laufen nur über die API-Routen. Die Berechtigung prüft jede Service-Funktion selbst (`requireAdmin`, `requireCustomer`). Die Next.js-Middleware leitet nur auf den Login um und ist keine Sicherheitsgrenze. Damit gibt es für jede Änderung genau eine Tür, und kein Einstiegspunkt kann die Prüfung umgehen.
 - **Neutral:** Braucht man später doch eine eigene App, gibt es die REST-API unter `/api` schon.

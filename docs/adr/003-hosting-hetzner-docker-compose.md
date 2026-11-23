@@ -17,14 +17,15 @@ Wir hosten auf **einem Hetzner Cloud Server (CX23) in Deutschland**. Mit Docker 
 
 ## Begründung
 
-- **Kosten:** ca. 7 bis 10 € im Monat für alles, ohne „nicht kommerziell" (Vercel Hobby) und ohne Einschlafen der App (Render Free).
+- **Später echt nutzbar:** Ein Dienstleister kann das Portal ohne Umbau weiterbetreiben. Vercel Hobby ist nur für nicht-kommerzielle Nutzung erlaubt, Render Free schläft ein.
+- **Kosten:** ca. 7 bis 10 € im Monat für alles.
 - **Datenschutz:** Hetzner und Brevo sind EU-Firmen mit Rechenzentren in der EU.
-- **Passt zu ADR-002:** Ein dauerhaft laufender Node-Prozess mit direkter Datenbankverbindung. Serverless-Funktionen mit Connection-Pooler hätten Sperren und lange Transaktionen schwieriger gemacht.
+- **Keine kalten Starts:** Ein dauerhaft laufender Node-Prozess mit direkter Datenbankverbindung. Mit Vercel + Neon ginge `FOR UPDATE` auch, bräuchte aber eine direkte Verbindung neben dem Pooler und mehr Konfiguration. Das ist kein Ausschlussgrund, aber ein Punkt mehr, der schiefgehen kann.
 - **Gleiche Umgebung lokal und live:** Dieselbe `docker-compose.yml` läuft auf dem Laptop und auf dem Server.
 
 ## Konsequenzen
 
-- **Negativ:** Wir betreiben den Server selbst: Sicherheitsupdates (`unattended-upgrades`), Firewall, SSH-Schlüssel und Backups. Das beschreiben wir einmal in einer Betriebsanleitung, damit es jeder im Team kann.
+- **Negativ:** Wir betreiben den Server selbst: Sicherheitsupdates (`unattended-upgrades`), Firewall, SSH-Schlüssel, Backups und Überwachung. Das ist in `hosting.md` unter „Betrieb" beschrieben, damit es jeder im Team kann. Migrationen laufen als eigener Schritt vor dem Start, damit eine fehlerhafte Migration nicht die laufende Version kaputt macht.
 - **Negativ:** Ein einziger Server ist ein Single Point of Failure. Für unser Projekt ist das in Ordnung. Die Backups liegen auf einem anderen System, und ein Wiederherstellungstest ist eingeplant.
 - **Positiv:** Wenn ein echter Dienstleister das Portal später nutzt, kann es so bleiben. Bei Bedarf wechselt man auf einen größeren Servertyp oder auf eine verwaltete Datenbank.
 - **Offen:** Die genauen Preise ändern sich (Hetzner hat sie im Juni 2026 erhöht). Vor dem ersten Bestellen prüfen wir sie nochmal.
