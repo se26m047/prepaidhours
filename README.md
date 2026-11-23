@@ -27,4 +27,7 @@ Am Ende des Semesters soll ein MVP laufen, mit dem man den ganzen Ablauf einmal 
 
 - `docs/requirements.md`: User Stories und Anforderungen
 - `docs/mvp.md`: was ins MVP kommt und was nicht
+- `docs/architecture.md`: Architektur, Technologien, Diagramme, Datenmodell, API
+- `docs/hosting.md`: Hosting-Optionen, Kosten, Betrieb
+- `docs/adr/`: Architecture Decision Records
 - `docs/ai-usage.md`: wie wir AI verwendet haben
