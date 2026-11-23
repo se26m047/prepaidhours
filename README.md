@@ -30,4 +30,5 @@ Am Ende des Semesters soll ein MVP laufen, mit dem man den ganzen Ablauf einmal 
 - `docs/architecture.md`: Architektur, Technologien, Diagramme, Datenmodell, API
 - `docs/hosting.md`: Hosting-Optionen, Kosten, Betrieb
 - `docs/adr/`: Architecture Decision Records
+- `docs/PrepaidHours-Architektur.pdf`: Architektur und Diagramme als PDF zum Abgeben
 - `docs/ai-usage.md`: wie wir AI verwendet haben
