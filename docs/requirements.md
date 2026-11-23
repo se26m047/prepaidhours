@@ -33,6 +33,7 @@ Akzeptanzkriterien:
 - Nach dem Absenden gibt es ein neues Paket mit Status „angefragt".
 - Der Dienstleister bekommt eine E-Mail, damit er die Rechnung schicken kann.
 - Das Guthaben ändert sich dadurch noch nicht.
+- Der Admin kann eine Anfrage mit Grund ablehnen. Sie bekommt dann den Status „abgelehnt" und wird dem Kunden nicht mehr als „wartet auf Zahlung" angezeigt.
 
 ### US-05 Kunden anlegen (Must)
 Als Admin möchte ich einen neuen Kunden anlegen, damit er das Portal nutzen kann.
@@ -41,6 +42,7 @@ Akzeptanzkriterien:
 - Ich muss Firmenname, Name und E-Mail angeben.
 - Der Kunde bekommt eine E-Mail mit einem Link, über den er sein Passwort setzt. Der Link gilt 48 Stunden.
 - Eine E-Mail-Adresse kann nicht zweimal verwendet werden.
+- Ist der Link abgelaufen oder die E-Mail nicht angekommen, kann der Admin einen neuen Link schicken. Der alte Link gilt dann nicht mehr.
 
 ### US-06 Paket anlegen und als bezahlt markieren (Must)
 Als Admin möchte ich ein Paket mit Stunden und Stundensatz anlegen und es als bezahlt markieren, wenn das Geld da ist.
@@ -65,6 +67,14 @@ Akzeptanzkriterien:
 - Bei 1:00 h Guthaben wird eine Buchung über 1:15 h komplett abgelehnt, mit einer Meldung, wie viel noch übrig ist.
 - Das muss auch funktionieren, wenn zwei Admins genau gleichzeitig buchen.
 
+### US-12 Passwort vergessen (Must)
+Als Kunde möchte ich mein Passwort selbst zurücksetzen können, damit ich nicht den Dienstleister anrufen muss, wenn ich es vergessen habe.
+
+Akzeptanzkriterien:
+- Auf der Login-Seite gebe ich meine E-Mail ein und bekomme einen Link zum Zurücksetzen. Der Link gilt 1 Stunde.
+- Die Meldung nach dem Absenden ist immer gleich, auch wenn es die E-Mail nicht gibt.
+- Nach dem Zurücksetzen werde ich auf allen Geräten abgemeldet.
+
 ### US-09 Warnung bei wenig Guthaben (Should)
 Als Kunde möchte ich eine E-Mail bekommen, wenn ich unter 2 Stunden falle, damit ich rechtzeitig nachbestelle. Die E-Mail kommt nur einmal und nicht bei jeder weiteren Buchung.
 
@@ -81,13 +91,14 @@ Als Kunde möchte ich meinen Verlauf als CSV herunterladen, damit ich ihn intern
 | FA-01 | Kunden loggen sich mit E-Mail und Passwort ein. | Must |
 | FA-02 | Ein Kunde sieht nur die Daten seiner eigenen Firma. | Must |
 | FA-03 | Guthaben = bezahlte Pakete minus gebuchte Stunden. Angefragte oder offene Pakete zählen nicht. | Must |
-| FA-04 | Ein Paket ist entweder angefragt, offen oder bezahlt. | Must |
+| FA-04 | Ein Paket ist entweder angefragt, offen, bezahlt oder abgelehnt. Abgelehnt werden kann nur ein angefragtes Paket. | Must |
 | FA-05 | Bei einer Paketanfrage geht eine E-Mail an den Dienstleister. | Must |
 | FA-06 | Arbeitszeit wird in 15-Minuten-Schritten gebucht. | Must |
 | FA-07 | Gebucht wird immer zuerst vom ältesten bezahlten Paket. Eine Buchung kann auf zwei Pakete aufgeteilt werden. | Must |
 | FA-08 | Reicht das Guthaben nicht, wird die ganze Buchung abgelehnt. | Must |
 | FA-09 | Unter 2 h Guthaben bekommt der Kunde einmal eine Warnung. | Should |
 | FA-10 | Stornierte Buchungen bleiben gespeichert. | Should |
+| FA-11 | Kunden können ihr Passwort selbst zurücksetzen, Admins können einen neuen Einladungslink schicken. | Must |
 
 ## Nichtfunktionale Anforderungen
 
@@ -108,3 +119,10 @@ Beim Durchgehen der Anforderungen sind ein paar Fragen aufgekommen, die wir so e
 - **Stundensatz nachträglich ändern?** Nein, weil die Rechnung schon draußen ist.
 
 Noch offen ist, ob Pakete irgendwann verfallen sollen. Das müssen wir noch klären.
+
+## Änderungen nach Phase 2
+
+Beim Review der Architektur (siehe `docs/ai-usage.md`, Phase 2) sind zwei Lücken in den Anforderungen aufgefallen:
+
+- **Fehlerhafte Paketanfragen** konnten nie entfernt werden. Neu: Status „abgelehnt" (US-04, FA-04).
+- **Ein Kunde konnte sich aussperren**, wenn die Einladung nicht ankommt oder er das Passwort vergisst. Neu: Einladung erneut senden (US-05) und Passwort vergessen (US-12, FA-11). US-12 ist Must, weil sonst der Grundablauf an einer verlorenen E-Mail scheitern kann.

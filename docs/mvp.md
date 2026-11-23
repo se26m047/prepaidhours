@@ -13,7 +13,7 @@ Im MVP soll man einen kompletten Ablauf durchspielen können:
 
 ## Was drin ist
 
-Alle Must-Stories, also US-01 bis US-08: Login, Guthaben, Verlauf, Paket anfragen, Kunden und Pakete anlegen, Arbeit buchen und der Schutz gegen Überbuchen.
+Alle Must-Stories, also US-01 bis US-08 und US-12: Login, Guthaben, Verlauf, Paket anfragen, Kunden und Pakete anlegen, Arbeit buchen, der Schutz gegen Überbuchen und Passwort vergessen.
 
 ## Was später kommt
 
